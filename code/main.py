@@ -126,7 +126,7 @@ def main():
     
     if opt.test_only:
         print('===> Testing')
-        test(test_data_loader, model ,opt.start_epoch)
+        test(test_data_loader, model , opt.start_epoch)
         return
 
     if step == 1:
@@ -135,6 +135,8 @@ def main():
             start_e = time.time()
             train(training_data_loader, training_high_loader, model, optimizer, epoch, False)
             save_checkpoint(model, optimizer, epoch, scale)
+            if epoch % opt.save_every == 0:
+                save_every_checkpoint(model, optimizer, epoch, scale)
             test(test_data_loader, model, epoch)
             end_e = time.time()
             print('total time {} h {} min'.format((end_e - start_e)*opt.epochs //3600, (end_e - start_e)*opt.epochs // 60 % 60))
@@ -309,13 +311,15 @@ def train(training_data_loader, training_high_loader, model, optimizer, epoch, j
                 sr_r = model[2](sr_)
                 sr = model[2](target)
                 srr = model[1](model[0](sr))
-                psnr_ = -20 *((sr_ - target).pow(2).mean().pow(0.5)).log10()
-                psnr = -20*((sr - input).pow(2).mean().pow(0.5)).log10()
+                # psnr_ = -20 *((sr_ - target).pow(2).mean().pow(0.5)).log10()
+                # psnr = -20*((sr - input).pow(2).mean().pow(0.5)).log10()
+                psnr_ = 0
+                psnr = 0
 
-            image = torch.cat([target, sr_, model[1](bicubic)], -2)
-            image_ = torch.cat([input, bicubic, sr, sr_r, model[0](input), model[5](model[0](input))], -2)
-            utils.save_image(image, 'hr_result.png')
-            utils.save_image(image_, 'lr_result.png')
+            # image = torch.cat([target, sr_, model[1](bicubic)], -2)
+            # image_ = torch.cat([input, bicubic, sr, sr_r, model[0](input), model[5](model[0](input))], -2)
+            # utils.save_image(image, 'hr_result.png')
+            # utils.save_image(image_, 'lr_result.png')
 
             print("===> Epoch[{}]({}/{}): Loss: idt {:.6f} {:.6f} cyc {:.6f}  {:.6f} D {:.6f} {:.6f}, G: {:.6f} {:.6f}, psnr_hr: {:.6f}, psnr_lr {:.6f} "\
                     .format(epoch, iteration, len(training_data_loader), idt_loss.data[0], idt_loss_l.data[0], cyc_loss.data[0], cyc_loss_l.data[0],\
@@ -328,7 +332,8 @@ def test(test_data_loader, model, epoch):
     n = len(test_data_loader)
     model.eval()
     for iteration, batch in enumerate(test_data_loader):
-        input, target, bicubic = batch[0], batch[1], batch[2]
+        input, target, bicubic, filename = batch[0], batch[1], batch[2], batch[3]
+        # print(filename[0])
         if opt.cuda: 
             target = target.cuda()/args.rgb_range
             input = input.cuda()/args.rgb_range
@@ -336,17 +341,21 @@ def test(test_data_loader, model, epoch):
 
         with torch.no_grad():
             sr_ = model[1](model[0](input))
-            sr = model[0](input)
-            utils.save_image(sr_, 'result/h_{}.png'.format(opt.save, iteration))
-            utils.save_image(sr, 'result/l_{}.png'.format(iteration))
-            psnr_ = calc_psnr_pixsh(sr_, target, args.scale[0], 1)
-            psnr = calc_psnr_pixsh(sr, bicubic, args.scale[0], 1)
-        avg += psnr#.data
-        avg_ += psnr_#.data
+            # sr = model[0](input)
+            if not os.path.exists('result'):
+                os.makedirs("result/")
+            utils.save_image(sr_, 'result/{}_e{}.png'.format(filename[0], epoch))
+            # utils.save_image(sr, 'result/l_{}.png'.format(iteration))
+            # psnr_ = calc_psnr_pixsh(sr_, target, args.scale[0], 1)
+            # psnr = calc_psnr_pixsh(sr, bicubic, args.scale[0], 1)
+            psnr_ = 0
+            psnr = 0
+        # avg += psnr#.data
+        # avg_ += psnr_#.data
 
         
-        print("===> ({}/{}): psnr lr: {:.10f} hr: {:.10f} "\
-                    .format(iteration, len(test_data_loader), psnr, psnr_,))
+        print("===> ({}/{}): imgs {}.png psnr lr: {:.10f} hr: {:.10f} "\
+                    .format(iteration, len(test_data_loader), filename[0], psnr, psnr_,))
     print('lr psnr', avg/n, 'hr psnr', avg_/n)
     with open('test.txt', 'a') as f:
         f.write('{} {} {} {} {}\n'.format(epoch,'lr', avg/n,'hr', avg_/n))
@@ -354,9 +363,15 @@ def test(test_data_loader, model, epoch):
 def to_numpy(var):
     return var.data.cpu().numpy()
 
-        
 def save_checkpoint(model, optimizer, epoch, scale=2):
     model_out_path =  "model_total_{}.pth".format(scale)
+    state = {"epoch": epoch ,"model": model, 'optimizer': [optimizer[0].state_dict(), optimizer[1].state_dict()]}
+    torch.save(state, model_out_path)
+
+    print("Checkpoint saved to {}".format(model_out_path))    
+
+def save_every_checkpoint(model, optimizer, epoch, scale=2):
+    model_out_path =  "checkpoint/model_total_{}x_{}.pth".format(scale, epoch)
     state = {"epoch": epoch ,"model": model, 'optimizer': [optimizer[0].state_dict(), optimizer[1].state_dict()]}
     if not os.path.exists("checkpoint/"):
         os.makedirs("checkpoint/")

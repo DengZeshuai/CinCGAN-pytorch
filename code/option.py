@@ -19,7 +19,7 @@ parser.add_argument('--seed', type=int, default=1,
                     help='random seed')
 
 # Data specifications
-parser.add_argument('--dir_data', type=str, default='../../../dataset',
+parser.add_argument('--dir_data', type=str, default='/home/datasets/sr',
                     help='dataset directory')
 parser.add_argument('--data_train', type=str, default='DIV2K',
                     help='train dataset name')
@@ -55,6 +55,10 @@ parser.add_argument('--benchmark_noise', type=bool, default=False,
                     help='dataset name for testing')
 parser.add_argument('--lr_downsample', default='blur', 
                     help='choose the corresponding LR data in dataset, blur, DN, nearest')
+parser.add_argument('--video_train', type=str, default='trainset',
+                    help='video dataset floder name')
+parser.add_argument('--video_test', type=str, default='testset',
+                    help='video dataset floder name')
 
 # Model specifications
 parser.add_argument('--model', default='EDSR',
@@ -132,6 +136,8 @@ parser.add_argument('--print_every', type=int, default=100,
                     help='how many batches to wait before logging training status')
 parser.add_argument('--save_results', action='store_true',
                     help='save output results')
+parser.add_argument('--save_every', default=10, type=int, 
+                    help='save model every k epochs' )
 
 args = parser.parse_args()
 template.setTemplate(args)

@@ -48,9 +48,9 @@ class Trainer():
         
 
         timer_data, timer_model = utils.timer(), utils.timer()
-        # for batch, (input, target, idx_scale) in enumerate(self.loader_train):
-        for batch in range(self.argstest_every):
-            (lr, hr, flag, _), self.train_iterator = infinite_get(self.train_iterator, self.loader_train)
+        for batch, (input, target, idx_scale) in enumerate(self.loader_train):
+        # for batch in range(self.argstest_every):
+        #     (lr, hr, flag, _), self.train_iterator = infinite_get(self.train_iterator, self.loader_train)
 
             input, target = self._prepare(input, target)
             self._scale_change(idx_scale)

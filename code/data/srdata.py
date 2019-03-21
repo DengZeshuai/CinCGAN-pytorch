@@ -87,9 +87,13 @@ class SRData(data.Dataset):
 
     def __getitem__(self, idx):
         lr, hr, lrb, filename = self._load_file(idx)
+        # print('after load ', lr.shape, hr.shape, lrb.shape)
         lr, hr, lrb = self._get_patch(lr, hr, lrb)
+        # print('after batch ',lr.shape, hr.shape, lrb.shape)
         lr, hr, lrb = common.set_channel([lr, hr, lrb], self.args.n_colors)
+        # print('after channel ',lr.shape, hr.shape, lrb.shape)
         lr_tensor, hr_tensor, lrb_tensor = common.np2Tensor([lr, hr, lrb], self.args.rgb_range)
+        # print('after to tensor ', lr_tensor.size(), hr_tensor.size(), lrb_tensor.size())
         return lr_tensor, hr_tensor, lrb_tensor, filename
 
     def __len__(self):

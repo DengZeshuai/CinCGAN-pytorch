@@ -10,17 +10,21 @@ from torchvision import transforms
 
 def get_patch(img_in, img_tar, img_in2, patch_size, scale, multi_scale=False):
     ih, iw = img_in.shape[:2]
+    i2h, i2w = img_in2.shape[:2]
 
     p = scale if multi_scale else 1
     tp = p * patch_size
     ip = tp // scale
+    i2p = tp // scale
 
     ix = random.randrange(0, iw - ip + 1)
     iy = random.randrange(0, ih - ip + 1)
-    tx, ty = scale * ix, scale * iy
+    i2x = random.randrange(0, i2w - i2p + 1)
+    i2y = random.randrange(0, i2h - i2p + 1)
+    tx, ty = scale * i2x, scale * i2y
 
     img_in = img_in[iy:iy + ip, ix:ix + ip, :]
-    img_in2 = img_in2[iy:iy + ip, ix:ix + ip, :]
+    img_in2 = img_in2[i2y:i2y + i2p, i2x:i2x + i2p, :]
     img_tar = img_tar[ty:ty + tp, tx:tx + tp, :]
 
     return img_in, img_tar, img_in2
@@ -43,6 +47,7 @@ def set_channel(l, n_channel):
 def np2Tensor(l, rgb_range):
     def _np2Tensor(img):
         np_transpose = np.ascontiguousarray(img.transpose((2, 0, 1)))
+        # print('np_transpose', np_transpose.shape, np_transpose.size)
         tensor = torch.from_numpy(np_transpose).float()
         tensor.mul_(rgb_range / 255)
 
