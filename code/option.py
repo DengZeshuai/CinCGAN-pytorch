@@ -19,7 +19,7 @@ parser.add_argument('--seed', type=int, default=1,
                     help='random seed')
 
 # Data specifications
-parser.add_argument('--dir_data', type=str, default='../../../dataset',
+parser.add_argument('--dir_data', type=str, default='/home/datasets/sr',
                     help='dataset directory')
 parser.add_argument('--data_train', type=str, default='DIV2K',
                     help='train dataset name')
@@ -35,7 +35,7 @@ parser.add_argument('--offset_train', type=int, default=0,
                     help='validation index offest')
 parser.add_argument('--ext', type=str, default='img',
                     help='dataset file extension')
-parser.add_argument('--scale', default='4',
+parser.add_argument('--scale', default='8',
                     help='super resolution scale')
 parser.add_argument('--patch_size', type=int, default=128,
                     help='output patch size')

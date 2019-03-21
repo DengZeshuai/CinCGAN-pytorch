@@ -25,7 +25,7 @@ class Data:
                 **kwargs
             )
 
-        if args.data_test in ['Set5', 'Set14', 'B100', 'Urban100']:
+        if args.data_test in ['Set5', 'Set14', 'B100', 'Urban100', 'Manga109']:
             if not args.benchmark_noise:
                 module_test = import_module('data.benchmark')
                 testset = getattr(module_test, 'Benchmark')(args, train=False)

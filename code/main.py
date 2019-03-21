@@ -328,7 +328,7 @@ def test(test_data_loader, model, epoch):
     n = len(test_data_loader)
     model.eval()
     for iteration, batch in enumerate(test_data_loader):
-        input, target, bicubic = batch[0], batch[1], batch[2]
+        input, target, bicubic, filename = batch[0], batch[1], batch[2], batch[3]
         if opt.cuda: 
             target = target.cuda()/args.rgb_range
             input = input.cuda()/args.rgb_range
@@ -337,8 +337,13 @@ def test(test_data_loader, model, epoch):
         with torch.no_grad():
             sr_ = model[1](model[0](input))
             sr = model[0](input)
-            utils.save_image(sr_, 'result/h_{}.png'.format(opt.save, iteration))
-            utils.save_image(sr, 'result/l_{}.png'.format(iteration))
+            if not os.path.exists('result/{}/{}'.format(opt.data_test, opt.lr_downsample)):
+                os.makedirs('result/{}/{}'.format(opt.data_test, opt.lr_downsample))
+            if opt.test_only or opt.save_results:
+                utils.save_image(sr_, 'result/{}/{}/{}.png'.format(opt.data_test, opt.lr_downsample, filename[0]))
+            if not opt.test_only:
+                utils.save_image(sr, 'result/{}_h.png'.format(filename[0]))
+                utils.save_image(sr, 'result/{}_l.png'.format(filename[0]))
             psnr_ = calc_psnr_pixsh(sr_, target, args.scale[0], 1)
             psnr = calc_psnr_pixsh(sr, bicubic, args.scale[0], 1)
         avg += psnr#.data
