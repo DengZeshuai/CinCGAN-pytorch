@@ -137,10 +137,11 @@ def main():
             save_checkpoint(model, optimizer, epoch, scale)
             test(test_data_loader, model, epoch)
             end_e = time.time()
-            print('total time {} h {} min'.format((end_e - start_e)*opt.epochs /3600, int((end_e - start_e)*opt.epochs /60) % 60))
+            print('total time {} h {} min'.format((end_e - start_e)*opt.epochs //3600, (end_e - start_e)*opt.epochs // 60 % 60))
         torch.save(model.state_dict(),'backup.pt')
         step = 2
         opt.start_epoch += opt.epochs
+        print(opt.start_epoch, opt.epochs)
     if step == 2:
         print("===> Training Step 2.")
         opt.lr = 1e-4
