@@ -206,3 +206,12 @@ def make_scheduler(args, my_optimizer):
 
     return scheduler
 
+def infinite_get(data_iter, data_queue):
+    try:
+        data = next(data_iter)
+    except StopIteration:
+        # StopIteration is thrown if dataset ends
+        # reinitialize data loader
+        data_iter = iter(data_queue)
+        data = next(data_iter)
+    return data, data_iter

@@ -13,6 +13,7 @@ from option import args
 import copy
 import numpy as np
 import math
+import time
 import scipy.misc
 import torch.nn.functional as F
 from srresnet import _NetG_DOWN, _NetD 
@@ -43,7 +44,7 @@ def main():
     global opt, model
     if opt.cuda:
         print("=> use gpu id: '{}'".format(opt.gpus))
-        os.environ["CUDA_VISIBLE_DEVICES"] = str(opt.gpus)
+        # os.environ["CUDA_VISIBLE_DEVICES"] = str(opt.gpus)
         if not torch.cuda.is_available():
                 raise Exception("No GPU found or Wrong gpu id, please run without --cuda")
 
@@ -131,17 +132,25 @@ def main():
     if step == 1:
         print("===> Training Step 1.")
         for epoch in range(opt.start_epoch, opt.epochs + 1):
+            start_e = time.time()
             train(training_data_loader, training_high_loader, model, optimizer, epoch, False)
             save_checkpoint(model, optimizer, epoch, scale)
             test(test_data_loader, model, epoch)
+            end_e = time.time()
+            print('total time {} h {} min'.format((end_e - start_e)*opt.epochs /3600, int((end_e - start_e)*opt.epochs /60) % 60))
         torch.save(model.state_dict(),'backup.pt')
-    elif step == 2:
+        step = 2
+        opt.start_epoch += opt.epochs
+    if step == 2:
         print("===> Training Step 2.")
         opt.lr = 1e-4
         for epoch in range(opt.start_epoch + 1, opt.epochs*2 + 1):
+            start_e = time.time()
             train(training_data_loader, training_high_loader, model, optimizer, epoch, True)
             save_checkpoint(model, optimizer, epoch, scale)
             test(test_data_loader, model, epoch)
+            end_e = time.time()
+            print('total time {} h {} min'.format((end_e - start_e)*opt.epochs /3600, int((end_e - start_e)*opt.epochs /60) % 60))
 
 def adjust_learning_rate(epoch):
     """Sets the learning rate to the initial LR decayed by 10 every 10 epochs"""
@@ -281,7 +290,7 @@ def train(training_data_loader, training_high_loader, model, optimizer, epoch, j
         dn_ = model[0](input_v)
         hr_ = model[1](dn_)
         lr_ = model[2](hr_)
-
+        # print("dn_.size {}, hr_ size {}, lr_ size {} , input_v {}".format(dn_.size(), hr_.size(), lr_.size(), input_v.size()))
         cyc_loss = \
                    criterion(lr_, input_v) * step_weight
         cyc_loss = cyc_loss * 10
@@ -327,7 +336,7 @@ def test(test_data_loader, model, epoch):
         with torch.no_grad():
             sr_ = model[1](model[0](input))
             sr = model[0](input)
-            utils.save_image(sr_, 'result/h_{}.png'.format(iteration))
+            utils.save_image(sr_, 'result/h_{}.png'.format(opt.save, iteration))
             utils.save_image(sr, 'result/l_{}.png'.format(iteration))
             psnr_ = calc_psnr_pixsh(sr_, target, args.scale[0], 1)
             psnr = calc_psnr_pixsh(sr, bicubic, args.scale[0], 1)

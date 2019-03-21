@@ -23,7 +23,7 @@ parser.add_argument('--dir_data', type=str, default='../../../dataset',
                     help='dataset directory')
 parser.add_argument('--data_train', type=str, default='DIV2K',
                     help='train dataset name')
-parser.add_argument('--data_test', type=str, default='DIV2K',
+parser.add_argument('--data_test', type=str, default='Set5',
                     help='test dataset name')
 parser.add_argument('--n_train', type=int, default=300,
                     help='number of training set')
@@ -47,10 +47,14 @@ parser.add_argument('--quality', type=str, default='',
                     help='jpeg compression quality')
 parser.add_argument('--chop_forward', action='store_true',
                     help='enable memory-efficient forward')
-parser.add_argument('--testpath', type=str, default='../LR/LRBI/',#test/DIV2K_val_LR_our',
+parser.add_argument('--testpath', type=str, default='../LR/LRBI/', #test/DIV2K_val_LR_our',
                     help='dataset directory for testing')
 parser.add_argument('--testset', type=str, default='B100',
                     help='dataset name for testing')
+parser.add_argument('--benchmark_noise', type=bool, default=False,
+                    help='dataset name for testing')
+parser.add_argument('--lr_downsample', default='blur', 
+                    help='choose the corresponding LR data in dataset, blur, DN, nearest')
 
 # Model specifications
 parser.add_argument('--model', default='EDSR',
@@ -80,7 +84,7 @@ parser.add_argument('--test_every', type=int, default=1000,
                     help='do test per every N batches')
 parser.add_argument('--test_only', action='store_true',
                     help='set this option to test the model')
-parser.add_argument('--epochs', type=int, default=400,
+parser.add_argument('--epochs', type=int, default=300,
                     help='number of epochs to train')
 parser.add_argument('--resume', type=int, default=-1,
                     help='load the model from the specified epoch')

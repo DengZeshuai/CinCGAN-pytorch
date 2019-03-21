@@ -8,6 +8,7 @@ import utils
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from utility import infinite_get
 
 from torch.autograd import Variable
 import torchvision.utils as tu
@@ -18,6 +19,7 @@ class Trainer():
         self.scale = args.scale
 
         self.loader_train, self.loader_test = loader
+        self.train_iterator = iter(self.loader_train)
         self.model, self.loss, self.optimizer, self.scheduler = ckp.load()
         self.ckp = ckp
 
@@ -43,9 +45,13 @@ class Trainer():
             '[Epoch {}]\tLearning rate: {:.2e}'.format(epoch, Decimal(lr)))
         self.ckp.add_log(torch.zeros(1, len(self.loss)))
         self.model.train()
+        
 
         timer_data, timer_model = utils.timer(), utils.timer()
-        for batch, (input, target, idx_scale) in enumerate(self.loader_train):
+        # for batch, (input, target, idx_scale) in enumerate(self.loader_train):
+        for batch in range(self.argstest_every):
+            (lr, hr, flag, _), self.train_iterator = infinite_get(self.train_iterator, self.loader_train)
+
             input, target = self._prepare(input, target)
             self._scale_change(idx_scale)
 
