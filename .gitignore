@@ -60,6 +60,7 @@ target/
 
 # PyTorch
 *.pt
+*.bak
 *.pth
 *.pdf
 *.png
