@@ -55,7 +55,7 @@ def main():
         torch.cuda.manual_seed(opt.seed)
 
     cudnn.benchmark = True
-    scale = int(args.scale[0])
+    scale = int(max(args.scale))
     print("===> Loading datasets")
     
     opt.n_train = 400
