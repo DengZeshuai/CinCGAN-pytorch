@@ -46,8 +46,9 @@ class _NetG_DOWN(nn.Module):
                 nn.LeakyReLU(0.2, inplace=True),
                 nn.Conv2d(in_channels=64, out_channels=64, kernel_size=stride+2, stride=stride, padding=1,),
                 nn.LeakyReLU(0.2, inplace=True),
-                nn.Conv2d(in_channels=64, out_channels=64, kernel_size=stride+2, stride=stride, padding=1,),
-                nn.LeakyReLU(0.2, inplace=True),
+                # uncomment for scale 8
+                # nn.Conv2d(in_channels=64, out_channels=64, kernel_size=stride+2, stride=stride, padding=1,),
+                # nn.LeakyReLU(0.2, inplace=True),
                 )
 
         self.relu = nn.LeakyReLU(0.2, inplace=True)

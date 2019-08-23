@@ -55,7 +55,7 @@ def main():
         torch.cuda.manual_seed(opt.seed)
 
     cudnn.benchmark = True
-    scale = int(max(args.scale))
+    scale = int(args.scale[0])
     print("===> Loading datasets")
     
     opt.n_train = 400
@@ -337,10 +337,11 @@ def test(test_data_loader, model, epoch):
         with torch.no_grad():
             sr_ = model[1](model[0](input))
             sr = model[0](input)
-            if not os.path.exists('result/{}/{}'.format(opt.data_test, opt.lr_downsample)):
-                os.makedirs('result/{}/{}'.format(opt.data_test, opt.lr_downsample))
+            save_path = 'result/{}/{}/x{}'.format(opt.data_test, opt.lr_downsample, opt.scale[0])
+            if not os.path.exists(save_path):
+                os.makedirs(save_path)
             if opt.test_only or opt.save_results:
-                utils.save_image(sr_, 'result/{}/{}/{}.png'.format(opt.data_test, opt.lr_downsample, filename[0]))
+                utils.save_image(sr_, '{}/{}.png'.format(save_path, filename[0]))
             if not opt.test_only:
                 utils.save_image(sr, 'result/{}_h.png'.format(filename[0]))
                 utils.save_image(sr, 'result/{}_l.png'.format(filename[0]))
